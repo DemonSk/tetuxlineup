@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./openzeppelin/ERC721.sol";
+import "./openzeppelin/extensions/ERC721Burnable.sol";
+import "./openzeppelin/SafeERC20.sol";
+import "./openzeppelin/Ownable.sol";
 
 contract Hero is ERC721, ERC721Burnable, Ownable {
     using SafeERC20 for IERC20;
 
     IERC20 public buyToken;
-    uint256 public buyTokenPrice;
+    uint256 public buyTokenAmount;
 
     uint public next_hero;
     mapping(uint => address) public minters;
@@ -25,7 +25,7 @@ contract Hero is ERC721, ERC721Burnable, Ownable {
 
     function recruit(uint _class) external {
         require(1 <= _class && _class <= 2);
-        buyToken.safeTransferFrom(msg.sender, address(this), buyTokenPrice);
+        buyToken.safeTransferFrom(msg.sender, address(this), buyTokenAmount);
         uint _next_hero = next_hero;
         class_id[_next_hero] = _class;
         level[_next_hero] = 1;
@@ -61,12 +61,12 @@ contract Hero is ERC721, ERC721Burnable, Ownable {
     buyToken = _buyToken;
   }
 
-  function setBuyTokenPrice(uint256 _buyTokenPrice) external onlyOwner  {
-    buyTokenPrice = _buyTokenPrice;
+  function setbuyTokenAmount(uint256 _buyTokenAmount) external onlyOwner  {
+    buyTokenAmount = _buyTokenAmount;
   }
 
-  function setBuyTokenAndPrice(IERC20 _buyToken, uint256 _buyTokenPrice) external onlyOwner  {
+  function setBuyTokenAndPrice(IERC20 _buyToken, uint256 _buyTokenAmount) external onlyOwner  {
     buyToken = _buyToken;
-    buyTokenPrice = _buyTokenPrice;
+    buyTokenAmount = _buyTokenAmount;
   }
 }
