@@ -1,4 +1,10 @@
 .env
 node_modules/
-cache/
-artifacts/
+
+# Hardhat
+cache
+artifacts
+deployments
+typechain
+coverage
+coverage.json
