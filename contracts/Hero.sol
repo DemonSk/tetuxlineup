@@ -2,7 +2,7 @@
 pragma solidity 0.8.10;
 
 import "./openzeppelin/ERC721.sol";
-import "./openzeppelin/extensions/ERC721Burnable.sol";
+import "./openzeppelin/ERC721Burnable.sol";
 import "./openzeppelin/SafeERC20.sol";
 import "./openzeppelin/Ownable.sol";
 
