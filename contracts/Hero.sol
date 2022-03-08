@@ -12,61 +12,80 @@ contract Hero is ERC721, ERC721Burnable, Ownable {
     IERC20 public buyToken;
     uint256 public buyTokenAmount;
 
-    uint public next_hero;
-    mapping(uint => address) public minters;
-    mapping(uint => uint) public xp;
-    mapping(uint => uint) public class_id;
-    mapping(uint => uint) public level;
-    mapping(uint => uint) public health;
-    mapping(uint => uint) public damage; 
-    mapping(uint => bool) public is_alive;    
+    uint256 public nextHero;
+
+    struct Hero {
+        address minter;
+        string className;
+        uint8 classId;
+        uint256 xp;
+        uint256 level;
+        uint256 health;
+        uint256 damage;
+        bool isAlive;
+    }
+    Hero[] public heroes;
 
     constructor() ERC721("Hero", "HR") {}
 
-    function recruit(uint _class) external {
+    function recruit(uint8 _class) external {
         require(1 <= _class && _class <= 2);
         buyToken.safeTransferFrom(msg.sender, address(this), buyTokenAmount);
-        uint _next_hero = next_hero;
-        class_id[_next_hero] = _class;
-        level[_next_hero] = 1;
-        minters[_next_hero] = _msgSender(); 
-        is_alive[_next_hero] = true;
+        uint256 _nextHero = nextHero;
         if (_class == 1) {
-            health[_next_hero] = 150e18;
-            damage[_next_hero] = 11e18;
+            heroes.push(
+                Hero(msg.sender, "Assassin", _class, 0, 1, 150e18, 11e18, true)
+            );
         } else if (_class == 2) {
-            health[_next_hero] = 100e18;
-            damage[_next_hero] = 16e18;
+            heroes.push(
+                Hero(msg.sender, "Mage", _class, 0, 1, 100e18, 16e18, true)
+            );
         }
-        _safeMint(_msgSender(), _next_hero);
-        next_hero++;
+        _safeMint(_msgSender(), _nextHero);
+        nextHero++;
     }
 
-    function xp_required(uint curent_level) public pure returns (uint xp_to_next_level) {
+    function xp_required(uint256 curent_level)
+        public
+        pure
+        returns (uint256 xp_to_next_level)
+    {
         xp_to_next_level = curent_level * 1000e18;
-        for (uint i = 1; i < curent_level; i++) {
+        for (uint256 i = 1; i < curent_level; i++) {
             xp_to_next_level += i * 1000e18;
         }
     }
-    function hero_info(uint _hero) external view returns (uint _xp, uint _health, uint _damage, uint _class, uint _level, bool _is_alive) {
-        _xp = xp[_hero];
-        _health = health[_hero];
-        _damage = damage[_hero];
-        _class = class_id[_hero];
-        _level = level[_hero];
-        _is_alive = is_alive[_hero];
+
+    function setBuyToken(IERC20 _buyToken) external onlyOwner {
+        buyToken = _buyToken;
     }
 
-      function setBuyToken(IERC20 _buyToken) external onlyOwner  {
-    buyToken = _buyToken;
-  }
+    function setbuyTokenAmount(uint256 _buyTokenAmount) external onlyOwner {
+        buyTokenAmount = _buyTokenAmount;
+    }
 
-  function setbuyTokenAmount(uint256 _buyTokenAmount) external onlyOwner  {
-    buyTokenAmount = _buyTokenAmount;
-  }
+    function setBuyTokenAndPrice(IERC20 _buyToken, uint256 _buyTokenAmount)
+        external
+        onlyOwner
+    {
+        buyToken = _buyToken;
+        buyTokenAmount = _buyTokenAmount;
+    }
 
-  function setBuyTokenAndPrice(IERC20 _buyToken, uint256 _buyTokenAmount) external onlyOwner  {
-    buyToken = _buyToken;
-    buyTokenAmount = _buyTokenAmount;
-  }
+    function withdrawFunds(
+        IERC20 token,
+        address receiver,
+        uint256 amount
+    ) external onlyOwner {
+        token.safeTransfer(receiver, amount);
+    }
+
+    function withdrawAllFunds(IERC20 token, address receiver)
+        external
+        onlyOwner
+    {
+        uint256 tokenBalance = token.balanceOf(address(this));
+
+        token.safeTransfer(receiver, tokenBalance);
+    }
 }
