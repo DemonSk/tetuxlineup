@@ -15,11 +15,13 @@ contract Hero is ERC721, ERC721Burnable, Ownable {
     uint256 public nextHero;
 
     struct Hero {
+        uint256 id;
         address minter;
         string className;
         uint8 classId;
         uint256 xp;
         uint256 level;
+        uint256 maxHealth;
         uint256 health;
         uint256 damage;
         bool isAlive;
@@ -28,21 +30,74 @@ contract Hero is ERC721, ERC721Burnable, Ownable {
 
     constructor() ERC721("Hero", "HR") {}
 
+    modifier heroAlive(uint256 _heroId) {
+        Hero storage hero = heroes[_heroId];
+        require(hero.health != 0, "Hero is dead");
+        _;
+    }
+
     function recruit(uint8 _class) external {
         require(1 <= _class && _class <= 2);
         buyToken.safeTransferFrom(msg.sender, address(this), buyTokenAmount);
         uint256 _nextHero = nextHero;
         if (_class == 1) {
             heroes.push(
-                Hero(msg.sender, "Assassin", _class, 0, 1, 150e18, 11e18, true)
+                Hero(
+                    _nextHero,
+                    msg.sender,
+                    "Assassin",
+                    _class,
+                    0,
+                    1,
+                    150e18,
+                    150e18,
+                    11e18,
+                    true
+                )
             );
         } else if (_class == 2) {
             heroes.push(
-                Hero(msg.sender, "Mage", _class, 0, 1, 100e18, 16e18, true)
+                Hero(
+                    _nextHero,
+                    msg.sender,
+                    "Mage",
+                    _class,
+                    0,
+                    1,
+                    100e18,
+                    100e18,
+                    16e18,
+                    true
+                )
             );
         }
         _safeMint(_msgSender(), _nextHero);
         nextHero++;
+    }
+
+    function addHealth(uint256 _heroId, uint256 _health)
+        external
+        heroAlive(_heroId)
+    {
+        Hero storage hero = heroes[_heroId];
+        if (_health + hero.health >= hero.maxHealth) {
+            hero.health = hero.maxHealth;
+        } else {
+            hero.health += _health;
+        }
+    }
+
+    function removeHealth(uint256 _heroId, uint256 _health)
+        external
+        heroAlive(_heroId)
+    {
+        Hero storage hero = heroes[_heroId];
+        if (hero.health - _health <= 0) {
+            hero.health = 0;
+            hero.isAlive = false;
+        } else {
+            hero.health -= _health;
+        }
     }
 
     function xp_required(uint256 curent_level)
