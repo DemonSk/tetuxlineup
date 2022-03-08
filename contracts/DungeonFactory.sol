@@ -13,6 +13,11 @@ contract DungeonFactory is Ownable {
 
     Dungeon[] public DungeonAddresses;
 
+    constructor(IERC20 _buyToken, uint256 _buyTokenAmount) {
+        buyToken = _buyToken;
+        buyTokenAmount = _buyTokenAmount;
+    }
+
     function createDungeon(string memory name) public {
         buyToken.safeTransferFrom(msg.sender, address(this), buyTokenAmount);
         Dungeon DungeonAddress = new Dungeon(name, msg.sender);

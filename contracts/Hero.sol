@@ -28,7 +28,12 @@ contract Hero is ERC721, ERC721Burnable, Ownable {
     }
     Hero[] public heroes;
 
-    constructor() ERC721("Hero", "HR") {}
+    constructor(IERC20 _buyToken, uint256 _buyTokenAmount)
+        ERC721("Hero", "HR")
+    {
+        buyToken = _buyToken;
+        buyTokenAmount = _buyTokenAmount;
+    }
 
     modifier heroAlive(uint256 _heroId) {
         Hero storage hero = heroes[_heroId];

@@ -10,13 +10,16 @@
 import { ethers } from "hardhat";
 const hre = require("hardhat");
 
+const goerliToken = "0x24C9184c7DA6CA2F3B5cF55E646E9CD581b89dA7";
+const goerliTokenAmount = "10000";
+
 async function main() {
   const Hero = await ethers.getContractFactory("Hero");
-  const Factory = await ethers.getContractFactory("DungeonFactory");
-  const hero = await Hero.deploy();
-  const factory = await Factory.deploy();
-
+  const hero = await Hero.deploy(goerliToken, goerliTokenAmount);
   await hero.deployed();
+
+  const Factory = await ethers.getContractFactory("DungeonFactory");
+  const factory = await Factory.deploy(goerliToken, goerliTokenAmount);
   await factory.deployed();
 
   console.log("Hero deployed to:", hero.address);
@@ -28,12 +31,12 @@ async function main() {
   try {
     await hre.run("verify:verify", {
       address: hero.address,
-      // constructorArguments: [],
+      constructorArguments: [goerliToken, goerliTokenAmount],
       contract: "contracts/Hero.sol:Hero",
     });
     await hre.run("verify:verify", {
       address: factory.address,
-      // constructorArguments: [],
+      constructorArguments: [goerliToken, goerliTokenAmount],
       contract: "contracts/DungeonFactory.sol:DungeonFactory",
     });
   } catch (err) {
