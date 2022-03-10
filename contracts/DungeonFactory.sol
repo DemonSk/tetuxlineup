@@ -18,9 +18,9 @@ contract DungeonFactory is Ownable {
         buyTokenAmount = _buyTokenAmount;
     }
 
-    function createDungeon(string memory name) public {
+    function createDungeon(string memory name, uint256[] memory _arr) public {
         buyToken.safeTransferFrom(msg.sender, address(this), buyTokenAmount);
-        Dungeon DungeonAddress = new Dungeon(name, msg.sender);
+        Dungeon DungeonAddress = new Dungeon(name, _arr);
         DungeonAddresses.push(DungeonAddress);
     }
 
